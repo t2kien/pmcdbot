@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="base" params="radius height mass wheel_radius wheel_pos_z">
+    <link name="base_footprint">
+    </link>
+
+
+    <link name="base_link">
+      <visual>
+        <!--origin xyz="0 0 ${base_height/2}" rpy="0 0 0"/-->
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder length="${height}" radius="${radius}"/>
+          <!-- <mesh filename="" scale="0.001 0.001 0.001"/> -->
+        </geometry>
+        <material name="yellow">
+          <color rgba="0.8784 0.6627 0.6627 1.0"/>
+        </material>
+      </visual>
+      
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder length="${height}" radius="${radius}"/>
+        </geometry>
+      </collision>
+
+      <inertial>
+      <!--https://en.wikipedia.org/wiki/List_of_moments_of_inertia#List_of_3D_inertia_tensors-->
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+        <inertia ixx="${(1/12) * mass * ((3*radius*radius)  + (height * height))}" ixy="0" ixz="0"
+                 iyx="0" iyy="${(1/12) * mass * ((3*radius*radius)  + (height * height))}" iyz="0"
+                 izx="0" izy="0" izz="${(1/2) * mass * (height * height)}"/>
+      </inertial>
+    </link>
+
+    <gazebo reference="base_link">  
+      <visual>  
+        <material>
+          <ambient>0.8392 0.6314 0.0 1.0</ambient>  
+          <diffuse>0.8392 0.6314 0.0 1.0</diffuse>  
+          <specular>0.99 0.99 0.99 1.0</specular>  
+          <emissive>0.0 0.0 0.0 0.0</emissive>  
+        </material>
+      </visual> 
+    </gazebo>
+
+    <joint name="base_to_footprint" type="fixed">
+      <parent link="base_footprint"/>
+      <child link="base_link"/>
+      <origin xyz="0 0 ${(wheel_radius - wheel_pos_z)}" rpy="0 0 0"/>
+    </joint>
+  </xacro:macro>
+</robot>

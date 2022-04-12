@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<robot name="linorobot2_2wd" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find linorobot2_description)/urdf/2wd_properties.urdf.xacro" />
+  <xacro:include filename="$(find linorobot2_description)/urdf/mech/base.urdf.xacro" />
+  <xacro:include filename="$(find linorobot2_description)/urdf/mech/wheel.urdf.xacro" />
+  <xacro:include filename="$(find linorobot2_description)/urdf/mech/caster_wheel.urdf.xacro" />
+  <xacro:include filename="$(find linorobot2_description)/urdf/sensors/imu.urdf.xacro" />
+  <xacro:include filename="$(find linorobot2_description)/urdf/sensors/generic_laser.urdf.xacro" />
+  <xacro:include filename="$(find linorobot2_description)/urdf/sensors/depth_sensor.urdf.xacro" />
+  <xacro:include filename="$(find linorobot2_description)/urdf/controllers/diff_drive.urdf.xacro" />
+  <xacro:include filename="$(find linorobot2_description)/urdf/sensors/sick_scan.urdf.xacro" />
+
+
+  <xacro:base 
+    height="${base_height}" 
+    radius="${base_radius}" 
+    mass="${base_mass}"
+    wheel_radius="${wheel_radius}"
+    wheel_pos_z="${wheel_pos_z}"
+/>
+
+  <xacro:wheel 
+    side="left"
+    radius="${wheel_radius}" 
+    width="${wheel_width}" 
+    pos_x="${wheel_pos_x}" 
+    pos_y="${wheel_pos_y}" 
+    pos_z="${wheel_pos_z}" 
+    mass="${wheel_mass}"
+  />
+
+  <xacro:wheel 
+    side="right"
+    radius="${wheel_radius}" 
+    width="${wheel_width}" 
+    pos_x="${wheel_pos_x}" 
+    pos_y="-${wheel_pos_y}" 
+    pos_z="${wheel_pos_z}" 
+    mass="${wheel_mass}"
+  />
+
+  <xacro:if value="${front_caster_wheel}">
+    <xacro:caster_wheel 
+      side="front_left"
+      mass="0.01"
+      caster_wheel_radius="${caster_wheel_radius}" 
+      caster_wheel_pos_z="${caster_wheel_pos_z}"
+      caster_wheel_pos_y="-${caster_wheel_pos_y}"
+      caster_wheel_pos_x="${caster_wheel_pos_x}"    
+    />
+  </xacro:if>
+  <xacro:if value="${front_caster_wheel}">
+    <xacro:caster_wheel 
+      side="front_right"
+      mass="0.01"
+      caster_wheel_radius="${caster_wheel_radius}" 
+      caster_wheel_pos_z="${caster_wheel_pos_z}"
+      caster_wheel_pos_y="${caster_wheel_pos_y}"  
+      caster_wheel_pos_x="${caster_wheel_pos_x}"    
+    />
+  </xacro:if>
+  <xacro:if value="${rear_caster_wheel}">
+    <xacro:caster_wheel 
+      side="rear_left"
+      mass="0.01"
+      caster_wheel_radius="${caster_wheel_radius}" 
+      caster_wheel_pos_z="${caster_wheel_pos_z}"
+      caster_wheel_pos_y="-${caster_wheel_pos_y}"
+      caster_wheel_pos_x="-${caster_wheel_pos_x}"  
+    />
+  </xacro:if>
+  <xacro:if value="${rear_caster_wheel}">
+    <xacro:caster_wheel 
+      side="rear_right"
+      mass="0.01"
+      caster_wheel_radius="${caster_wheel_radius}" 
+      caster_wheel_pos_z="${caster_wheel_pos_z}"
+      caster_wheel_pos_y="${caster_wheel_pos_y}"  
+      caster_wheel_pos_x="-${caster_wheel_pos_x}" 
+    />
+  </xacro:if>
+  <xacro:imu/>
+  <!--
+  <xacro:generic_laser>
+    <xacro:insert_block name="front_laser_pose" />
+  </xacro:generic_laser>
+  
+  <xacro:generic_laser>
+    <xacro:insert_block name="rear_laser_pose" />
+  </xacro:generic_laser>
+
+ 
+  <xacro:sick_tim_56x name="front_laser_pose" ros_topic="scan" />
+  <xacro:sick_tim_56x name="rear_laser_pose" ros_topic="scan" />
+  --> 
+  <!-- Laser scanners -->
+  <joint name="base_link_to_front_laser_joint" type="fixed">
+      <parent link="base_link" />
+      <child link="front_laser_link_mount_link" />
+      <xacro:insert_block name="front_laser_pose" />
+      <!--origin xyz="0.17 0 0.1914" rpy="0.0 0.0 ${0.25 * pi}" /-->  <!-- from visually matching up the meshes of the MiR and the laser scanner -->
+  </joint>
+  <xacro:sick_tim_56x name="front_laser_link" ros_topic="f_scan" />
+
+  <joint name="base_link_to_back_laser_joint" type="fixed">
+      <parent link="base_link" />
+      <child link="back_laser_link_mount_link" />
+      <xacro:insert_block name="back_laser_pose" />
+      <!--origin xyz="-0.3548 -0.2352 0.1914" rpy="0.0 0.0 ${-0.75 * pi}" /-->  <!-- from visually matching up the meshes of the MiR and the laser scanner -->
+  </joint>
+
+  <xacro:sick_tim_56x name="back_laser_link" ros_topic="b_scan" />
+
+  <xacro:depth_sensor>
+  <xacro:insert_block name="depth_sensor_pose" />
+  </xacro:depth_sensor>
+  
+
+  <xacro:diff_drive_controller
+    wheel_separation="${wheel_pos_y * 2}"
+    wheel_radius="${wheel_radius}"
+    wheel_torque="${wheel_torque}"
+  />
+</robot>
